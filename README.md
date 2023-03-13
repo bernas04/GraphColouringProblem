@@ -1,6 +1,6 @@
 # Intelligent Computer Systems
 
-This repository contains the code for the Intelligent Computer Systems course at the University of Rzeszów.
+This repository contains the code for the Intelligent Computer Systems course at the [University of Rzeszów](https://www.ur.edu.pl/en/home).
 
 ## Problem definition
 
