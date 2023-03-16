@@ -1,6 +1,7 @@
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+import itertools
 
 
 class Graph:
@@ -56,21 +57,23 @@ class Graph:
         self.vertexConnected = {}
         for i in self.connections:
             node1, node2 = i
-            if node1 and node2 not in self.vertexConnected:
+            if (node1 and node2) not in self.vertexConnected:
                 self.vertexConnected[node1] = [node2]
                 self.vertexConnected[node2] = [node1]
-            elif node1 not in self.vertexConnected and node2 in self.vertexConnected:
+            elif (node1 not in self.vertexConnected) and (node2 in self.vertexConnected):
                 self.vertexConnected[node1] = [node2]
                 self.vertexConnected[node2].append(node1)
-            elif node1 in self.vertexConnected and node2 not in self.vertexConnected:
+            elif (node1 in self.vertexConnected) and (node2 not in self.vertexConnected):
                 self.vertexConnected[node2] = [node1]
                 self.vertexConnected[node1].append(node2)
-            else:
+            elif (node1 and node2) in self.vertexConnected:
                 self.vertexConnected[node1].append(node2)
                 self.vertexConnected[node2].append(node1)
 
-        print(self.connections)
-        print(self.vertexConnected)
+        self.connections = sorted(self.connections)
+
+        self.vertexConnected = {k: sorted(v)
+                                for k, v in self.vertexConnected.items()}
 
     def drawGraph(self):
         for node1, node2 in self.connections:
@@ -93,12 +96,21 @@ class Graph:
             return False
         return True
 
-    def getSolution(self):
+    def generateAllColorsCombinations(self):
         """implement the solution here"""
-        pass
+        # connection : [(1, 4), (0, 4), (2, 3), (0, 3), (1, 2), (0, 1)]
+        # vertexConnected : {1: [4, 2, 0], 4: [1, 0], 0: [4, 3, 1], 2: [3, 1], 3: [2, 0]}
+        # colors : ["red", "blue", "green"]
+
+        combinations = list(itertools.product(
+            self.colors, repeat=len(self.vertexConnected.keys())))
+
+        # combinations : [('red', 'red', 'red', 'red', 'red'), ('red', 'red', 'red', 'red', 'blue')... ('green', 'green', 'green', 'green', 'green')]
+        #  list(vertexConnected.keys())[0] ... list(vertexConnected.keys())[4]
 
 
 if __name__ == "__main__":
     graph = Graph(5, 6, ["red", "blue", "green"])
     graph.buildEdges()
-    graph.drawGraph()
+    # graph.drawGraph()
+    graph.generateAllColorsCombinations()
