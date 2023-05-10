@@ -26,7 +26,7 @@ for i in range(290):
         adj_matrix[vertex2, vertex1] = 1
 
 # Number of colors available
-num_colors = 10
+num_colors = 10 # number of vertex
 
 def fitness_func(solution, solution_idx):
     """Calculate the fitness of the solution."""
@@ -36,7 +36,7 @@ def fitness_func(solution, solution_idx):
             if adj_matrix[i][j] and solution[i] == solution[j]:
                 conflicts += 1
     # return a fitness that minimizes the number of conflicts
-    return 1 / (conflicts + 1) 
+    return 1 / (conflicts + 1) # formula with max number of colors and minimum 
 
 def on_generation(ga_instance):
     """Print the fitness of the best solution in each generation."""
