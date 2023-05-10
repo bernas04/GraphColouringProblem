@@ -50,6 +50,15 @@ def on_generation(ga_instance):
     print(
         f'Generation {ga_instance.generations_completed}: Best fitness = {ga_instance.best_solution()}')
 
+    n = 10  # number of generations to check
+    best_fitness = ga_instance.best_solution()[1]
+    last_n_fitness = [s[1] for s in ga_instance.best_solutions[-n:]]
+    print(last_n_fitness)
+    if all(abs(f - best_fitness) < 0.0001 for f in last_n_fitness):
+        print(
+            f"Population has converged. Best fitness value has not changed significantly over the last {n} generations.")
+        return "stop"
+
     return "stop" if ga_instance.best_solution()[1] == 1 else False
 
 
@@ -63,7 +72,8 @@ def run_ga():
                            num_genes=len(adj_matrix),
                            gene_type=int,
                            gene_space=list(range(num_colors)),
-                           on_generation=on_generation)
+                           on_generation=on_generation,
+                           save_best_solutions=True)
 
     ga_instance.run()
 
