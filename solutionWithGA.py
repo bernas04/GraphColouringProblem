@@ -73,6 +73,7 @@ def run_ga():
         gene_space=list(range(num_colors)),
         on_generation=on_generation,
         stop_criteria=STOP_CRITERIA,
+        crossover_type="single_point",
     )
 
     ga_instance.run()
