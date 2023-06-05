@@ -2,57 +2,12 @@ import pygad
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
+import warnings
+warnings.filterwarnings("ignore")
 
-# Adjacency matrix representing the graph
-adj_matrix = np.array(
-    [
-        [0, 1, 1, 0, 0, 0],
-        [1, 0, 1, 1, 0, 0],
-        [1, 1, 0, 1, 1, 0],
-        [0, 1, 1, 0, 1, 1],
-        [0, 0, 1, 1, 0, 1],
-        [0, 0, 0, 1, 1, 0],
-    ]
-)
-
-"""NUM_VERTICES = 50
-NUM_EDGES = 1225"""
-
-# PyGAD parameters
-NUM_GENERATIONS = 2000
-NUM_PARENTS_MATING = 50
-NUM_SOLUTIONS_PER_POPULATION = 100
-
-
-saturation = str(int(NUM_GENERATIONS * 0.1))  # 20% of the generations
-# TODO: the reach_1 stop criteria is not well defined
-# When the fitness function returns 1, it means that a solution with no conflicts was found
-# but in our problem we want to find the BEST solution and not just a solution with no conflicts
-STOP_CRITERIA = ["reach_1", "saturate_" + saturation]
-
-"""
-adj_matrix = np.zeros((NUM_VERTICES, NUM_VERTICES))
-
-# randomly assign NUM_EDGES edges in the graph
-for i in range(NUM_EDGES):
-    # randomly select two vertices
-    vertex1 = np.random.randint(0, NUM_VERTICES)
-    vertex2 = np.random.randint(0, NUM_VERTICES)
-
-    # make sure the vertices are not the same and there is no edge already
-    if vertex1 != vertex2 and adj_matrix[vertex1, vertex2] == 0:
-        # set the edge
-        adj_matrix[vertex1, vertex2] = 1
-        adj_matrix[vertex2, vertex1] = 1"""
-
-# Number of colors available
-num_colors = len(adj_matrix)
-
-
-def is_complete_graph(adj_matrix):
-    num_vertices = len(adj_matrix)
-    for i in range(num_vertices):
-        for j in range(num_vertices):
+def is_complete_graph():
+    for i in range(num_vertices_and_colors):
+        for j in range(num_vertices_and_colors):
             if i != j:
                 if adj_matrix[i][j] != 1:
                     return False
@@ -61,69 +16,63 @@ def is_complete_graph(adj_matrix):
                     return False
     return True
 
+def has_cycles_and_odd_vertices():
+    visited = [False] * num_vertices_and_colors
 
-def has_cycles_and_odd_vertices(adj_matrix):
-    num_vertices = len(adj_matrix)
-    visited = [False] * num_vertices
-
-    for vertex in range(num_vertices):
+    for vertex in range(num_vertices_and_colors):
         if not visited[vertex]:
-            if dfs_cycle(vertex, visited, -1, adj_matrix):
+            if dfs_cycle(vertex, visited, -1):
                 return True
 
     return False
 
-
-def dfs_cycle(vertex, visited, parent, adj_matrix):
+def dfs_cycle(vertex, visited, parent):
     visited[vertex] = True
 
     for neighbor in range(len(adj_matrix[vertex])):
         if adj_matrix[vertex][neighbor]:
             if not visited[neighbor]:
-                if dfs_cycle(neighbor, visited, vertex, adj_matrix):
+                if dfs_cycle(neighbor, visited, vertex):
                     return True
             elif neighbor != parent:
                 return True
 
     return False
 
-
-def is_star_shaped_graph(adj_matrix):
-    num_vertices = len(adj_matrix)
+def is_star_shaped_graph():
     central_vertex_degree = 0
-    vertex_degrees = [0] * num_vertices
+    vertex_degrees = [0] * num_vertices_and_colors
 
-    for i in range(num_vertices):
-        for j in range(num_vertices):
+    for i in range(num_vertices_and_colors):
+        for j in range(num_vertices_and_colors):
             if adj_matrix[i][j] == 1:
                 vertex_degrees[i] += 1
                 if i != j:
                     vertex_degrees[j] += 1
 
     for degree in vertex_degrees:
-        if degree == num_vertices - 1:
+        if degree == num_vertices_and_colors - 1:
             central_vertex_degree += 1
         elif degree != 1:
             return False
 
     return central_vertex_degree == 1
 
-
 def fitness_func(solution, solution_idx):
     """Calculate the fitness of the solution."""
-    solution_num_colors = len(set(solution))
     conflicts = 0
-    for i in range(len(adj_matrix)):
-        for j in range(i + 1, len(adj_matrix)):
+    for i in range(num_vertices_and_colors):
+        for j in range(i + 1, num_vertices_and_colors):
             if adj_matrix[i][j] and solution[i] == solution[j]:
                 conflicts += 1
 
+    solution_num_colors = len(set(solution))
     difference = 0
-    if is_complete_graph(adj_matrix) or has_cycles_and_odd_vertices(adj_matrix):
+    if is_complete_graph() or has_cycles_and_odd_vertices():
         chromaticNumber = sum(adj_matrix[0]) + 1
         difference = abs(chromaticNumber - solution_num_colors)
 
-    elif is_star_shaped_graph(adj_matrix):
+    elif is_star_shaped_graph():
         chromaticNumber = 2
         difference = abs(chromaticNumber - solution_num_colors)
 
@@ -143,7 +92,7 @@ def fitness_func(solution, solution_idx):
 
 
 def on_generation(ga_instance):
-    """Check if the population has converged and print the fitness of the best solution in each generation"""
+    """Print the fitness of the best solution in each generation"""
     print(
         f"Generation {ga_instance.generations_completed}: Best fitness = {ga_instance.best_solution()}"
     )
@@ -169,29 +118,31 @@ def convert_to_graph_image(color_list):
     # Remove axis labels
     plt.axis("off")
 
-    # Show the image
-    plt.show()
+    # Save the image
+    plt.savefig(f"results/graph_6vertices/solution_num_generations_{num_generations}_num_parents_mating_{num_parents_mating}_num_solutions_per_population_{num_solutions_per_population}_crossover_probability_{crossover_probability}_mutation_probability_{mutation_probability}.png")
+    plt.close()
 
 
 def run_ga():
     """Run the genetic algorithm to find a solution."""
     ga_instance = pygad.GA(
-        num_generations=NUM_GENERATIONS,
-        num_parents_mating=NUM_PARENTS_MATING,  # Number of solutions to be selected as parents
+        num_generations=num_generations,
+        num_parents_mating=num_parents_mating,  # Number of solutions to be selected as parents
         fitness_func=fitness_func,
-        sol_per_pop=NUM_SOLUTIONS_PER_POPULATION,  # population size
-        # Number of genes in the solution/chromosome
-        num_genes=len(adj_matrix),
+        sol_per_pop=num_solutions_per_population,  # population size
+        num_genes=num_vertices_and_colors, # Number of genes in the solution/chromosome
         gene_type=int,
-        gene_space=list(range(num_colors)),
+        gene_space=list(range(num_vertices_and_colors)),
         on_generation=on_generation,
         stop_criteria=STOP_CRITERIA,
+        crossover_probability=crossover_probability,
+        mutation_probability=mutation_probability,
     )
 
     ga_instance.run()
     ga_instance.summary()
-
-    ga_instance.plot_fitness()
+    ga_instance.plot_fitness(save_dir=f"results/graph_6vertices/generations_vs_fitness_num_generations_{num_generations}_num_parents_mating_{num_parents_mating}_num_solutions_per_population_{num_solutions_per_population}_crossover_probability_{crossover_probability}_mutation_probability_{mutation_probability}.png")
+    plt.close()
 
     # Print the best solution
     print(
@@ -206,4 +157,33 @@ def run_ga():
 
 
 if __name__ == "__main__":
-    run_ga()
+
+    # Adjacency matrix representing the graph
+    adj_matrix = np.array(
+        [
+            [0, 1, 1, 0, 0, 0],
+            [1, 0, 1, 1, 0, 0],
+            [1, 1, 0, 1, 1, 0],
+            [0, 1, 1, 0, 1, 1],
+            [0, 0, 1, 1, 0, 1],
+            [0, 0, 0, 1, 1, 0],
+        ]
+    )
+    num_vertices_and_colors = len(adj_matrix) # Number of colors available, and number of vertices in the graph
+    num_generations_list = [100, 200, 300]
+    num_parents_mating_list = [10, 20, 30]
+    num_solutions_per_population_list = [20, 30, 40]
+    crossover_probabilities = [0.5, 0.7, 0.9]
+    mutation_probabilities = [0.01, 0.05, 0.1]
+    for num_generations in num_generations_list:
+        saturation = str(int(num_generations * 0.1)) #mudar saturation? como nos parametros
+        STOP_CRITERIA = ["reach_1", "saturate_" + saturation]
+        for num_parents_mating in num_parents_mating_list:
+            for num_solutions_per_population in num_solutions_per_population_list:
+                for crossover_probability in crossover_probabilities:
+                    for mutation_probability in mutation_probabilities:
+                        if num_solutions_per_population > num_parents_mating:
+                            print("Number of generations: %d ; Number of parents mating: %d ; Number of solutions per population: %d ; Crossover probability: %f ; Mutation probability: %f" % (num_generations, num_parents_mating, num_solutions_per_population, crossover_probability, mutation_probability))
+                            run_ga()
+                            print("--------------------------------------------------")
+                            print()
