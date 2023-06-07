@@ -37,3 +37,36 @@ def plot_results_vertex_():
 
 plot_results_vertex_() 
 
+def plot_results_score():
+    directory_path = 'results/'
+    data = []
+
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
+        open_file = open(file_path, "r")
+
+        lines = open_file.readlines()
+        n_vertex = 0
+        time = 0
+
+        for line in lines:
+            if line.startswith('n_vertex'):
+                n_vertex = int(line.split(':')[1])
+        
+            elif line.startswith('accuracy_score'):
+                accuracy_score = float(line.split(':')[1])
+            
+        data.append([n_vertex, accuracy_score, filename])
+  
+    # Plotting the results
+    for data_point in data:
+        vertex, accuracy_score, filename = data_point
+        plt.scatter(vertex, accuracy_score, label=filename)
+
+    plt.xlabel('Number of Vertices')
+    plt.ylabel('accuracy_score')
+    plt.title('Vertex vs Accuracy_score')
+    plt.legend()
+    plt.show()
+
+
