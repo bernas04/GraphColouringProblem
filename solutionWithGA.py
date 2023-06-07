@@ -1,10 +1,21 @@
 import pygad
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import warnings
+import os
 warnings.filterwarnings("ignore")
 
+
+# TODO: com o médio e o grande correr com os melhores parâmteros
+# TODO: fazer os gráficos com o script da mariana (number vertices vs tempo and number vertices vs accuracy)
+# TODO: guardar os resultados para escrever nas tabelas e fazê-las
+# TODO: escrever relatório
+# TODO: fazer os sllides
+
+
+# Verifies if the graph is complete 
 def is_complete_graph():
     for i in range(num_vertices_and_colors):
         for j in range(num_vertices_and_colors):
@@ -16,6 +27,7 @@ def is_complete_graph():
                     return False
     return True
 
+# Verifies if the graph has cycles and odd vertices
 def has_cycles_and_odd_vertices():
     visited = [False] * num_vertices_and_colors
 
@@ -26,6 +38,7 @@ def has_cycles_and_odd_vertices():
 
     return False
 
+# Verify if the graph has cycles
 def dfs_cycle(vertex, visited, parent):
     visited[vertex] = True
 
@@ -39,6 +52,7 @@ def dfs_cycle(vertex, visited, parent):
 
     return False
 
+# Verifies if the graph is star shaped
 def is_star_shaped_graph():
     central_vertex_degree = 0
     vertex_degrees = [0] * num_vertices_and_colors
@@ -71,34 +85,19 @@ def fitness_func(solution, solution_idx):
     if is_complete_graph() or has_cycles_and_odd_vertices():
         chromaticNumber = sum(adj_matrix[0]) + 1
         difference = abs(chromaticNumber - solution_num_colors)
-
     elif is_star_shaped_graph():
         chromaticNumber = 2
         difference = abs(chromaticNumber - solution_num_colors)
 
+    # return a fitness that minimizes the number of conflicts, and the difference between the number of colors used and the chromatic number of the graph
     return 1 / (conflicts + difference + 1)
-
-    """else:
-        chromaticNumber = 0
-        for i in adj_matrix:
-            chromaticNumber = (
-                sum(adj_matrix[i])
-                if sum(adj_matrix[i]) > chromaticNumber
-                else chromaticNumber
-            )
-
-    # return a fitness that minimizes the number of conflicts
-    return 1 / (conflicts + 1)"""
-
 
 def on_generation(ga_instance):
     """Print the fitness of the best solution in each generation"""
-    print(
-        f"Generation {ga_instance.generations_completed}: Best fitness = {ga_instance.best_solution()}"
-    )
+    #print(f"Generation {ga_instance.generations_completed}: Best fitness = {ga_instance.best_solution()}")
 
 
-def convert_to_graph_image(color_list):
+def convert_to_graph_image(color_list, fileDir):
     G = nx.from_numpy_array(adj_matrix)
 
     # Set node colors
@@ -119,7 +118,7 @@ def convert_to_graph_image(color_list):
     plt.axis("off")
 
     # Save the image
-    plt.savefig(f"results/graph_6vertices/solution_num_generations_{num_generations}_num_parents_mating_{num_parents_mating}_num_solutions_per_population_{num_solutions_per_population}_crossover_probability_{crossover_probability}_mutation_probability_{mutation_probability}.png")
+    plt.savefig(fileDir)
     plt.close()
 
 
@@ -139,44 +138,50 @@ def run_ga():
         mutation_probability=mutation_probability,
     )
 
+    execution_time = time.time()
     ga_instance.run()
-    ga_instance.summary()
-    ga_instance.plot_fitness(save_dir=f"results/graph_6vertices/generations_vs_fitness_num_generations_{num_generations}_num_parents_mating_{num_parents_mating}_num_solutions_per_population_{num_solutions_per_population}_crossover_probability_{crossover_probability}_mutation_probability_{mutation_probability}.png")
-    plt.close()
+    execution_time = time.time() - execution_time
+    #ga_instance.summary()
 
-    # Print the best solution
-    print(
-        "Best solution:",
-        ga_instance.best_solution()[0],
-        ", score",
-        ga_instance.best_solution()[1],
-    )
-
-    # Convert the best solution to a graph image
-    convert_to_graph_image(ga_instance.best_solution()[0])
-
+    return ga_instance, execution_time 
 
 if __name__ == "__main__":
 
     # Adjacency matrix representing the graph
     adj_matrix = np.array(
-        [
-            [0, 1, 1, 0, 0, 0],
-            [1, 0, 1, 1, 0, 0],
-            [1, 1, 0, 1, 1, 0],
-            [0, 1, 1, 0, 1, 1],
-            [0, 0, 1, 1, 0, 1],
-            [0, 0, 0, 1, 1, 0],
-        ]
+[[0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+[0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1],
+[1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1],
+[1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+[0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+[1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+[1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1],
+[1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+[1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+[1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1],
+[1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0],
+[0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0]]
+
+
     )
+
+    best_solution_at_the_moment = None
+    best_execution_time = 0
+    best_parameters = {}
+
+    num_edges = sum(sum([i for i in adj_matrix]))
     num_vertices_and_colors = len(adj_matrix) # Number of colors available, and number of vertices in the graph
-    num_generations_list = [100, 200, 300]
-    num_parents_mating_list = [10, 20, 30]
-    num_solutions_per_population_list = [20, 30, 40]
-    crossover_probabilities = [0.5, 0.7, 0.9]
-    mutation_probabilities = [0.01, 0.05, 0.1]
+
+    num_generations_list = [100, 500, 1000, 2000]
+    num_parents_mating_list = [10, 20, 30, 40, 50]
+    num_solutions_per_population_list = [20, 40, 60, 80, 100]
+    crossover_probabilities = [0.5, 0.7, 0.9] 
+    mutation_probabilities = [0.01, 0.05, 0.1]  
     for num_generations in num_generations_list:
-        saturation = str(int(num_generations * 0.1)) #mudar saturation? como nos parametros
+        saturation = str(int(num_generations * 0.1)) 
         STOP_CRITERIA = ["reach_1", "saturate_" + saturation]
         for num_parents_mating in num_parents_mating_list:
             for num_solutions_per_population in num_solutions_per_population_list:
@@ -184,6 +189,35 @@ if __name__ == "__main__":
                     for mutation_probability in mutation_probabilities:
                         if num_solutions_per_population > num_parents_mating:
                             print("Number of generations: %d ; Number of parents mating: %d ; Number of solutions per population: %d ; Crossover probability: %f ; Mutation probability: %f" % (num_generations, num_parents_mating, num_solutions_per_population, crossover_probability, mutation_probability))
-                            run_ga()
+                            ga_instance, executionTime = run_ga()
+                            # Print the best solution with these parameters
+                            print("Best solution with these parameters:", ga_instance.best_solution()[0],", score", ga_instance.best_solution()[1])
+                            if best_solution_at_the_moment == None or ga_instance.best_solution()[1] > best_solution_at_the_moment.best_solution()[1]:
+                                
+                                best_solution_at_the_moment = ga_instance
+                                best_execution_time = executionTime
+                                best_parameters["num_generations"] = num_generations
+                                best_parameters["num_parents_mating"] = num_parents_mating
+                                best_parameters["num_solutions_per_population"] = num_solutions_per_population
+                                best_parameters["crossover_probability"] = crossover_probability
+                                best_parameters["mutation_probability"] = mutation_probability
                             print("--------------------------------------------------")
                             print()
+
+    directory_name = f"results/{num_vertices_and_colors}v{num_edges}e"
+    if not os.path.isdir(directory_name):
+        os.mkdir(directory_name)
+
+    f = open(f"{directory_name}/solution.txt", "w")
+    f.write(f"n_vertex: {num_vertices_and_colors}\n")
+    f.write(f"n_edges: {num_edges}\n")
+    f.write(f"best_parameters: {best_parameters}\n")
+    f.write(f"execution_time: {best_execution_time}\n")
+    f.write(f"accuracy: {best_solution_at_the_moment.best_solution()[1]}\n")
+    f.close()
+
+    convert_to_graph_image(best_solution_at_the_moment.best_solution()[0], f"{directory_name}/coloredGraph.png")
+
+    best_solution_at_the_moment.plot_fitness(
+        save_dir=f"{directory_name}/generationsFitness.png"
+        )
