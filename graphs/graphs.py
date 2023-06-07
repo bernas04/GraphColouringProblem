@@ -72,6 +72,8 @@ def adjacency_matrix(edges):
         j = vertex.index(v2)
         adjacency_mtx[i][j] = 1
         adjacency_mtx[j][i] = 1
+
+        
     #save the adjacency matrix in a file
     with open("adjacency_matrix_" + str(num_vertex) + "v_"+str(num_edges)+"e.txt", "w") as f:
         f.write("[")
@@ -104,20 +106,9 @@ def main():
     adjacency_matrix(big_12[1])
     adjacency_matrix(big_75[1])
     
-    
-    # save the adjacency matrix in a file
 
-    
 
-    """
-    print("Adjacency matrix of medium graph with 12.5 of edges")
-    for row in adjacency_matrix_medium_12:
-        print(row)
-    
-    print("Adjacency matrix of medium graph with 75 of edges")
-    for row in adjacency_matrix_medium_75:
-        print(row)
-    """
+
 
 
 
