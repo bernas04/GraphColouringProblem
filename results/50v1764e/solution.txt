@@ -1,0 +1,5 @@
+n_vertex: 50
+n_edges: 1764
+best_parameters: {'num_generations': 2000, 'num_parents_mating': 50, 'num_solutions_per_population': 100, 'crossover_probability': 0.5, 'mutation_probability': 0.1}
+execution_time: 29.919856309890747
+accuracy: 1.0
