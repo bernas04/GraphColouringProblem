@@ -1,0 +1,6 @@
+Number of generations: 2000 ; Number of parents mating: 50 ; Number of solutions per population: 100 ; Crossover probability: 0.500000 ; Mutation probability: 0.100000
+Best solution with these parameters: [46 30 39 47 44 43 47 42 42 24 42 41 27 28 41  0 39  3 30  8 28  4 28 10
+ 43 33 28 33 27 38 39 46 47 30  0 41 39 38 24 24  0 41 21 44  0 44 42 28
+  0 46] , score 0.07142857142857142
+--------------------------------------------------
+
