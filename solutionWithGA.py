@@ -7,14 +7,6 @@ import warnings
 import os
 warnings.filterwarnings("ignore")
 
-
-# TODO: com o médio e o grande correr com os melhores parâmteros
-# TODO: fazer os gráficos com o script da mariana (number vertices vs tempo and number vertices vs accuracy)
-# TODO: guardar os resultados para escrever nas tabelas e fazê-las
-# TODO: escrever relatório
-# TODO: fazer os sllides
-
-
 # Verifies if the graph is complete 
 def is_complete_graph():
     for i in range(num_vertices_and_colors):
@@ -164,8 +156,6 @@ if __name__ == "__main__":
 [1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1],
 [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0],
 [0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0]]
-
-
     )
 
     best_solution_at_the_moment = None
